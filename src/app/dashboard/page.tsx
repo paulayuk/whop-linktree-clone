@@ -2,10 +2,10 @@ import { getCurrentUserId } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { ProfileForm } from "./ProfileForm";
 import { AddLinkForm, LinkRow } from "./LinkForm";
+import { EarningsButton } from "./EarningsButton";
 
 export default async function DashboardPage() {
   const userId = await getCurrentUserId();
-  // layout.tsx already redirects if userId is null, so we can assert here
   const creator = await prisma.creator.findUnique({
     where: { userId: userId! },
     include: { links: { orderBy: { sortOrder: "asc" } } },
@@ -18,19 +18,27 @@ export default async function DashboardPage() {
         <span className="font-mono text-sm font-bold tracking-tight">
           linktree / dashboard
         </span>
-        {creator && (
+        <div className="flex items-center gap-4">
+          {creator && (
+            <a
+              href={`/u/${creator.handle}`}
+              target="_blank"
+              className="text-xs underline text-gray-600 hover:text-black"
+            >
+              View public page →
+            </a>
+          )}
           <a
-            href={`/u/${creator.handle}`}
-            target="_blank"
-            className="text-xs underline text-gray-600 hover:text-black"
+            href="/api/auth/logout"
+            className="text-xs text-gray-500 hover:text-black"
           >
-            View public page →
+            Log out
           </a>
-        )}
+        </div>
       </header>
 
       <main className="max-w-xl mx-auto px-6 py-10 space-y-10">
-        {/* Profile section */}
+        {/* Profile */}
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-widest mb-4">
             Profile
@@ -38,7 +46,7 @@ export default async function DashboardPage() {
           <ProfileForm creator={creator} />
         </section>
 
-        {/* Links section */}
+        {/* Links */}
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-widest mb-4">
             Links
@@ -65,22 +73,18 @@ export default async function DashboardPage() {
           {creator && <AddLinkForm />}
         </section>
 
-        {/* Earnings section — placeholder for Step 4 */}
+        {/* Earnings */}
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-widest mb-4">
             Earnings
           </h2>
-          <div className="border border-dashed border-black p-6 text-center">
-            <p className="text-sm text-gray-600 mb-3">
-              Enable earnings to accept payments for premium links.
+          {creator ? (
+            <EarningsButton enrolled={!!creator.whopCompanyId} />
+          ) : (
+            <p className="text-sm text-gray-500">
+              Save your profile first to enable earnings.
             </p>
-            <button
-              disabled
-              className="bg-black text-white text-sm font-semibold py-2 px-6 opacity-40 cursor-not-allowed"
-            >
-              Enable Earnings (Step 4)
-            </button>
-          </div>
+          )}
         </section>
       </main>
     </div>

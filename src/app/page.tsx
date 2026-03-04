@@ -20,17 +20,11 @@ export default async function Home() {
         </p>
 
         <a
-          href="/dev/seed"
+          href="/api/auth/login"
           className="bg-black text-white text-sm font-semibold py-3 px-8 hover:bg-gray-900 transition-colors"
         >
           Create your link page
         </a>
-
-        <p className="text-xs text-gray-400 mt-4">
-          DEV MODE: clicking above sets a dev session.
-          <br />
-          This button will trigger real Whop OAuth in Step 4.
-        </p>
       </main>
     </div>
   );
