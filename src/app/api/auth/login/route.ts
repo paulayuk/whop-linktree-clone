@@ -26,7 +26,8 @@ export async function GET() {
     code_challenge_method: "S256",
   });
 
-  const authorizeUrl = `https://api.whop.com/oauth/authorize?${params.toString()}`;
+  const whopBase = process.env.WHOP_OAUTH_BASE ?? "https://api.whop.com";
+  const authorizeUrl = `${whopBase}/oauth/authorize?${params.toString()}`;
 
   const res = NextResponse.redirect(authorizeUrl);
 

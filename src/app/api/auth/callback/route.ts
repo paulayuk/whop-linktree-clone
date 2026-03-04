@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
   }
 
   // 1. Exchange code for access token
-  const tokenRes = await fetch("https://api.whop.com/oauth/token", {
+  const whopBase = process.env.WHOP_OAUTH_BASE ?? "https://api.whop.com";
+  const tokenRes = await fetch(`${whopBase}/oauth/token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
