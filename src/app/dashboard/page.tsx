@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { ProfileForm } from "./ProfileForm";
 import { AddLinkForm, LinkRow } from "./LinkForm";
 import { EarningsButton } from "./EarningsButton";
+import { PayoutPortal } from "./PayoutPortal";
 
 export default async function DashboardPage() {
   const userId = await getCurrentUserId();
@@ -86,6 +87,16 @@ export default async function DashboardPage() {
             </p>
           )}
         </section>
+
+        {/* Payouts */}
+        {creator?.whopCompanyId && (
+          <section>
+            <h2 className="text-xs font-semibold uppercase tracking-widest mb-4">
+              Payouts
+            </h2>
+            <PayoutPortal companyId={creator.whopCompanyId} />
+          </section>
+        )}
       </main>
     </div>
   );
