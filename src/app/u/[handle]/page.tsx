@@ -1,31 +1,60 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { whop } from "@/lib/whop";
 import { UnlockButton } from "./UnlockButton";
 
 interface Props {
   params: Promise<{ handle: string }>;
-  searchParams: Promise<{ unlocked?: string }>;
+  searchParams: Promise<{
+    unlocked?: string;
+    payment_id?: string;
+    checkout_status?: string;
+  }>;
 }
 
 export default async function PublicProfilePage({ params, searchParams }: Props) {
   const { handle } = await params;
-  const { unlocked } = await searchParams;
+  const { unlocked, payment_id, checkout_status } = await searchParams;
 
   const creator = await prisma.creator.findUnique({
     where: { handle },
-    include: {
-      links: { orderBy: { sortOrder: "asc" } },
-    },
+    include: { links: { orderBy: { sortOrder: "asc" } } },
   });
 
   if (!creator) notFound();
 
-  // Check if the visitor has a paid unlock for this creator
+  // On success redirect: verify payment server-side and mark unlock as PAID
+  if (
+    checkout_status === "success" &&
+    payment_id &&
+    unlocked
+  ) {
+    try {
+      const payment = await whop.payments.retrieve(payment_id);
+
+      if (payment.status === "paid") {
+        await prisma.unlock.updateMany({
+          where: {
+            id: unlocked,
+            creatorId: creator.id,
+            status: "PENDING", // idempotent — only update if still pending
+          },
+          data: {
+            status: "PAID",
+            whopPaymentId: payment_id,
+          },
+        });
+      }
+    } catch (err) {
+      // Non-fatal — webhook will catch it if this fails
+      console.error("[u/handle] payment verify failed:", err);
+    }
+  }
+
+  // Check if this visitor has a paid unlock
   let hasPaidUnlock = false;
   if (unlocked) {
-    const unlock = await prisma.unlock.findUnique({
-      where: { id: unlocked },
-    });
+    const unlock = await prisma.unlock.findUnique({ where: { id: unlocked } });
     hasPaidUnlock = unlock?.creatorId === creator.id && unlock?.status === "PAID";
   }
 
@@ -81,11 +110,11 @@ export default async function PublicProfilePage({ params, searchParams }: Props)
 
         {/* Premium links section */}
         {premiumLinks.length > 0 && (
-          <div className="mt-6 space-y-3">
-            <div className="border-t border-dashed border-black pt-6">
+          <div className="mt-6">
+            <div className="border-t border-dashed border-black pt-6 space-y-3">
               {hasPaidUnlock ? (
                 <>
-                  <p className="text-xs text-center text-gray-500 mb-4 uppercase tracking-widest">
+                  <p className="text-xs text-center text-gray-500 uppercase tracking-widest mb-4">
                     Premium links
                   </p>
                   {premiumLinks.map((link) => (
@@ -94,7 +123,7 @@ export default async function PublicProfilePage({ params, searchParams }: Props)
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full border border-black px-4 py-3 text-sm font-medium text-center hover:bg-black hover:text-white transition-colors mb-3"
+                      className="block w-full border border-black px-4 py-3 text-sm font-medium text-center hover:bg-black hover:text-white transition-colors"
                     >
                       {link.title}
                     </a>
@@ -102,11 +131,10 @@ export default async function PublicProfilePage({ params, searchParams }: Props)
                 </>
               ) : (
                 <>
-                  {/* Locked preview */}
                   {premiumLinks.map((link) => (
                     <div
                       key={link.id}
-                      className="w-full border border-black px-4 py-3 text-sm font-medium text-center text-gray-300 bg-gray-50 select-none mb-3"
+                      className="w-full border border-black px-4 py-3 text-sm font-medium text-center text-gray-300 bg-gray-50 select-none"
                     >
                       🔒 {link.title}
                     </div>
