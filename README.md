@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Whop Linktree Clone
 
-## Getting Started
+A link-in-bio platform where creators publish free links and gate premium ones behind a one-time payment. Built with Next.js, Prisma, and Whop.
 
-First, run the development server:
+## Stack
+
+- **Next.js 15** (App Router, TypeScript)
+- **Prisma** + PostgreSQL
+- **Tailwind CSS**
+- **Whop SDK** — OAuth, Connected Accounts, Direct Charges, Webhooks, Payout Portal
+
+## Getting started
+
+**1. Clone and install**
+
+```bash
+git clone https://github.com/yourname/whop-linktree-clone
+cd whop-linktree-clone
+npm install
+```
+
+**2. Set up environment variables**
+
+```bash
+cp .env.example .env
+```
+
+Fill in all values — see `.env.example` for descriptions. You'll need a Whop developer account at [whop.com/developer](https://whop.com/developer).
+
+For local development, use Whop's sandbox environment and run ngrok to get a stable `https://` URL:
+
+```bash
+npx ngrok http 3000
+```
+
+**3. Run the database migration**
+
+```bash
+prisma migrate dev
+```
+
+**4. Start the dev server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See `.env.example` for the full list. Key values:
 
-## Learn More
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `WHOP_CLIENT_ID` | OAuth app client ID |
+| `WHOP_CLIENT_SECRET` | OAuth app client secret |
+| `WHOP_API_KEY` | Platform API key (all permissions) |
+| `WHOP_PARENT_COMPANY_ID` | Your platform's Whop company ID |
+| `WHOP_WEBHOOK_SECRET` | Webhook signing secret |
+| `SESSION_SECRET` | iron-session encryption key (`openssl rand -base64 32`) |
+| `NEXT_PUBLIC_APP_URL` | Your app's public URL (no trailing slash) |
+| `NEXT_PUBLIC_WHOP_ENV` | `sandbox` or `production` |
 
-To learn more about Next.js, take a look at the following resources:
+## Deploying
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push to GitHub and import at [vercel.com/new](https://vercel.com/new)
+2. Add all env vars with production values (remove sandbox `WHOP_BASE_URL` and `WHOP_OAUTH_BASE`)
+3. Run `prisma migrate deploy` against your production database
+4. Update redirect URI and webhook URL in the Whop dashboard to your production domain
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project structure
 
-## Deploy on Vercel
+```
+src/
+  app/
+    actions/          # Server actions (creator, links, checkout, earnings)
+    api/
+      auth/           # OAuth login, callback, logout
+      payout-token/   # Mints access tokens for the payout portal
+      webhooks/whop/  # payment.succeeded / payment.failed
+    dashboard/        # Creator dashboard (profile, links, earnings, payouts)
+    u/[handle]/       # Public profile page
+  lib/
+    prisma.ts         # Prisma client singleton
+    session.ts        # iron-session helpers
+    whop.ts           # Whop SDK client singleton
+prisma/
+  schema.prisma       # User, Creator, Link, Unlock models
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
