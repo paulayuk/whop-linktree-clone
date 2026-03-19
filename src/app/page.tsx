@@ -8,7 +8,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-white text-black font-sans flex flex-col">
       <header className="border-b border-black px-6 py-4">
-        <span className="font-mono text-sm font-bold tracking-tight">linktree</span>
+        <span className="font-mono text-sm font-bold tracking-tight">linkstacks</span>
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 text-center">

@@ -66,7 +66,7 @@ export default async function PublicProfilePage({ params, searchParams }: Props)
     <div className="min-h-screen bg-white text-black font-sans">
       <header className="border-b border-black px-6 py-4">
         <a href="/" className="font-mono text-sm font-bold tracking-tight">
-          linktree
+          linkstacks
         </a>
       </header>
 

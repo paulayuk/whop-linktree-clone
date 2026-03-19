@@ -17,7 +17,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="border-b border-black px-6 py-4 flex items-center justify-between">
         <span className="font-mono text-sm font-bold tracking-tight">
-          linktree / dashboard
+          linkstacks / dashboard
         </span>
         <div className="flex items-center gap-4">
           {creator && (

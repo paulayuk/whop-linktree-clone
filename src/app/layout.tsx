@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Linktree Clone",
+  title: "Linkstacks",
   description: "Share your links and charge for premium content via Whop",
 };
 
