@@ -33,6 +33,7 @@ model Creator {
 
   // Whop Connected Account
   whopCompanyId  String?  // set after "Enable Earnings" enrollment
+  payoutEnabled  Boolean  @default(false) // true only after KYC onboarding is complete
   // Application fee in cents (what the platform keeps)
   applicationFee Int      @default(50) // cents
 

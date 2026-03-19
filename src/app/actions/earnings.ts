@@ -45,7 +45,7 @@ export async function enableEarnings(): Promise<{ error: string }> {
   const accountLink = await whop.accountLinks.create({
     company_id: companyId,
     use_case: "account_onboarding",
-    return_url: `${APP_URL}/dashboard?enrolled=true`,
+    return_url: `${APP_URL}/api/earnings/complete`,
     refresh_url: `${APP_URL}/dashboard?refresh=true`,
   });
 

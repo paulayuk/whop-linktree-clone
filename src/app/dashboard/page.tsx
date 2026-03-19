@@ -80,7 +80,7 @@ export default async function DashboardPage() {
             Earnings
           </h2>
           {creator ? (
-            <EarningsButton enrolled={!!creator.whopCompanyId} />
+            <EarningsButton enrolled={!!creator.whopCompanyId} payoutEnabled={creator.payoutEnabled} />
           ) : (
             <p className="text-sm text-gray-500">
               Save your profile first to enable earnings.
@@ -89,12 +89,12 @@ export default async function DashboardPage() {
         </section>
 
         {/* Payouts */}
-        {creator?.whopCompanyId && (
+        {creator?.payoutEnabled && (
           <section>
             <h2 className="text-xs font-semibold uppercase tracking-widest mb-4">
               Payouts
             </h2>
-            <PayoutPortal companyId={creator.whopCompanyId} />
+            <PayoutPortal companyId={creator.whopCompanyId!} />
           </section>
         )}
       </main>
