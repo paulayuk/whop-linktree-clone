@@ -13,7 +13,7 @@ const ProfileSchema = z.object({
     .regex(/^[a-z0-9_-]+$/, "Only lowercase letters, numbers, - and _"),
   title: z.string().max(80),
   bio: z.string().max(300),
-  unlockPrice: z.coerce.number().int().min(100).max(100000), // cents, $1–$1000
+  unlockPrice: z.coerce.number().min(1).max(1000), // dollars, $1–$1000
 });
 
 export type ActionResult = { error?: string; success?: boolean };
@@ -37,7 +37,8 @@ export async function saveProfile(
     return { error: parsed.error.issues[0].message };
   }
 
-  const { handle, title, bio, unlockPrice } = parsed.data;
+  const { handle, title, bio, unlockPrice: unlockPriceDollars } = parsed.data;
+  const unlockPrice = Math.round(unlockPriceDollars * 100); // convert to cents
 
   // Check handle uniqueness (excluding current creator)
   const existing = await prisma.creator.findUnique({ where: { handle } });

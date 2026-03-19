@@ -72,7 +72,7 @@ export function ProfileForm({ creator }: { creator: Creator | null }) {
           />
         </div>
         <p className="text-xs text-gray-500 mt-1">
-          Minimum $1. Stored in cents internally.
+          Minimum $1.
         </p>
       </div>
 
